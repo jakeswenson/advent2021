@@ -1,1 +1,3 @@
 /bazel-*
+*.tulsiproj
+*.xcodeproj

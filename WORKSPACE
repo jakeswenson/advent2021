@@ -66,7 +66,13 @@ spm_repositories(
         spm_pkg(
             "git@github.com:apple/swift-algorithms.git",
             from_version = "1.0.0",
-            products = ["Algorithms"]
+            products = ["Algorithms"],
+        ),
+        spm_pkg(
+            "git@github.com:pointfreeco/swift-parsing.git",
+            from_version = "0.3.1",
+            products = ["Parsing"]
+
         )
     ],
 )

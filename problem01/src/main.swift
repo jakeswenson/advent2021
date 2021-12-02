@@ -1,12 +1,28 @@
 import Foundation
-import Logging
+import Algorithms
 
-let bundle = Bundle.main
+let file = "problem01/resources/problem01.txt"
+let path=URL(fileURLWithPath: file)
+let text=try! String(contentsOf: path)
 
-let logger = Logger(label: bundle.bundleIdentifier ?? "<none>")
-logger.info("Hello World!")
 
-// Since the Info.plist file gets embedded in the binary, we can access values
-// like the bundle identifier using the NSBundle APIs.
-print("Hello World from \(bundle.bundleIdentifier ?? "<none>")")
-print("\nHere is the entire Info.plist dictionary: \n\n\(bundle.infoDictionary ?? [:])")
+let lines: [String.SubSequence] = text.split(whereSeparator: \.isNewline)
+
+let numbers = lines.map { line in Int(line) ?? 0 }
+
+let count = zip(numbers, numbers[1...]).filter { (fst, snd) in
+    snd > fst
+}.count
+
+print(count)
+
+// part2
+let windowed = numbers.windows(ofCount: 3).map { window in window.reduce(0, +) }
+let answer2 = zip(windowed, windowed[1...]).filter { (fst, snd) in
+    snd > fst
+}.count
+
+
+
+print(answer2)
+
