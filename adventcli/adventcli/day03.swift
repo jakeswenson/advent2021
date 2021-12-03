@@ -6,15 +6,11 @@ func day03() {
     let path=URL(fileURLWithPath: file)
     let text=try! String(contentsOf: path)
     
-    let lineArrays: [[Int]] = text.split(whereSeparator: \.isNewline)
-        .map { line in
-            line.map { Int("\($0)") ?? 0 }
-        }
+    let binaryNumbers: [[Int]] =
+        text.split(whereSeparator: \.isNewline)
+            .map { line in line.map { Int("\($0)") ?? 0 } }
     
-    let length = lineArrays[0].count
-    
-    let columns = (0...length-1)
-    let rows = (0...lineArrays.count-1)
+    let columns = (0...binaryNumbers[0].count-1)
     
     func columnCounts(ints: [[Int]], column: Int) -> (zeros: Int, ones: Int) {
         return (0...ints.count-1).reduce((zeros: 0, ones:0), { counts, row in
@@ -27,7 +23,7 @@ func day03() {
     }
     
     let counts = columns.map { col in
-        return columnCounts(ints: lineArrays, column: col)
+        return columnCounts(ints: binaryNumbers, column: col)
     }
     
     let result = counts.reduce((gamma: 0, epsilon: 0), { state, counts in
@@ -44,7 +40,7 @@ func day03() {
         }
     }
     
-    let oxygenRatingArray = columns.reduce(lineArrays) { ints, column in
+    let oxygenRatingArray = columns.reduce(binaryNumbers) { ints, column in
         if ints.count == 1 {
             return ints
         }
@@ -54,11 +50,11 @@ func day03() {
         }
     }
     
-    let oxygenRating = binArrayToInt(binArray: oxygenRatingArray[0])
+    let oxygenRating = binArrayToInt(binArray: oxygenRatingArray.first ?? [])
     
-    print("Part 2 - Oxygen:", oxygenRating)
+    print("Part 2 - O2:", oxygenRating)
     
-    let co2RatingArray = columns.reduce(lineArrays) { ints, column in
+    let co2RatingArray = columns.reduce(binaryNumbers) { ints, column in
         if ints.count == 1 {
             return ints
         }
@@ -68,10 +64,9 @@ func day03() {
         }
     }
     
-    let co2Rating = binArrayToInt(binArray: co2RatingArray[0])
+    let co2Rating = binArrayToInt(binArray: co2RatingArray.first ?? [])
     
     print("Part 2 - CO2:", co2Rating)
     
-    
-    print("Part:", co2Rating * oxygenRating)
+    print("Part 2:", co2Rating * oxygenRating)
 }
