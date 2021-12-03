@@ -2,7 +2,7 @@ import Foundation
 import Algorithms
 
 func day01() {
-    let file = "/code/personal/advent2021/adventcli/resources/problem01.txt"
+    let file = "/code/advent2021/adventcli/resources/problem01.txt"
     let path=URL(fileURLWithPath: file)
     let text=try! String(contentsOf: path)
 
