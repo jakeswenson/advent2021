@@ -11,14 +11,13 @@ load(
 swift_library(
     name = "Sources",
     srcs = ["src/main.swift"],
-    data = ["resources/data.txt"],
     deps = [
         "@swift_pkgs//swift-log:Logging",
         "@swift_pkgs//swift-collections:Collections",
         "@swift_pkgs//swift-algorithms:Algorithms",
+        "@swift_pkgs//swift-parsing:Parsing",
     ],
 )
-
 
 macos_command_line_application(
     name = "cli",

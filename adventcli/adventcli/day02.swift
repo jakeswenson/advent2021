@@ -4,7 +4,7 @@ import Parsing
 import Algorithms
 
 func day02() {
-    let file = "/code/advent2021/adventcli/resources/problem02.txt"
+    let file = "/code/advent2021/problems/problem02.txt"
     
     let path=URL(fileURLWithPath: file)
     let text=try! String(contentsOf: path)
