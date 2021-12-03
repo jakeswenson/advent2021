@@ -1,7 +1,6 @@
 import Foundation
 import Parsing
 
-
 print("===== DAY 01 =======")
 day01()
 
