@@ -2,7 +2,7 @@ import Foundation
 import Algorithms
 import Parsing
 
-let file = "advent2021/problem02/resources/data.txt"
+let file = "/code/personal/advent2021/adventcli/resources/problem02.txt"
 let path=URL(fileURLWithPath: file)
 let text=try! String(contentsOf: path)
 

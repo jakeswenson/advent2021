@@ -1,0 +1,30 @@
+import Foundation
+import Algorithms
+
+func day01() {
+    let file = "/code/personal/advent2021/adventcli/resources/problem01.txt"
+    let path=URL(fileURLWithPath: file)
+    let text=try! String(contentsOf: path)
+
+
+    let lines: [String.SubSequence] = text.split(whereSeparator: \.isNewline)
+
+    let numbers = lines.map { line in Int(line) ?? 0 }
+
+    let count = zip(numbers, numbers[1...]).filter { (fst, snd) in
+        snd > fst
+    }.count
+
+    print(count)
+
+    // part2
+    let windowed = numbers.windows(ofCount: 3).map { window in window.reduce(0, +) }
+    let answer2 = zip(windowed, windowed[1...]).filter { (fst, snd) in
+        snd > fst
+    }.count
+
+
+
+    print(answer2)
+}
+

@@ -17,7 +17,6 @@ load(
 swift_library(
     name = "Sources",
     srcs = ["src/main.swift"],
-    data = ["resources/problem01.txt"],
     deps = [
         "@swift_pkgs//swift-log:Logging",
         "@swift_pkgs//swift-collections:Collections",
