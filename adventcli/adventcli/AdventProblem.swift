@@ -9,17 +9,20 @@ protocol Problem {
 }
 
 extension Problem {
-
     var problemId: String { String(format: "Day%02d", 3) }
 }
 
+struct Part1 {
+    computation: () -> Int
+}
+
 struct Solution: Problem {
-    let part1: () -> Int
+    let part1: Part1
     let part2: Optional<() -> Int>
 }
 
 @resultBuilder struct ProblemPartBuilder {
-    static func buildBlock(_ part1: @escaping () -> Int, _ part2: Optional<() -> Int> = Optional.none) -> Solution {
+    static func buildBlock(_ part1: Part1, _ part2: Optional<() -> Int> = Optional.none) -> Solution {
         Solution(part1: part1, part2: part2)
     }
     
@@ -36,13 +39,13 @@ func problem(day: Int, @ProblemPartBuilder parts: (String) -> Solution) -> () ->
     
     return {
         print(String(format: "===== DAY %02d =======", day))
-        print("Part 1:", solution.part1())
+        print("Part 1:", solution.part1.computation())
         print("Part 2:", (solution.part2 ?? { 0 })())
     }
 }
 
-func part1(_ logic: @escaping () -> Int) -> () -> Int {
-    return logic
+func part1(_ logic: @escaping () -> Int) -> Part1 {
+    return Part1(computation: logic)
 }
 
 func part2(_ logic: @escaping () -> Int) -> () -> Int {
