@@ -34,7 +34,7 @@ struct BingoBoard {
     }
 }
 
-let rowParser = Many(Int.parser(), atLeast: 5, atMost: 5, separator: Whitespace())
+let rowParser = Many(Int.parser(), atLeast: 5, atMost: 5, separator: Whitespace<Substring.UTF8View>())
 let parser = Many(rowParser, atLeast: 5, atMost: 5, separator: Whitespace())
     .map { board in BingoBoard(board: board) }
 let manyBoards = Many(parser, separator: Whitespace())
