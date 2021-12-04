@@ -7,7 +7,7 @@ func binArrayToInt(binArray: [Int]) -> Int {
 }
 
 func columnCounts(ints: [[Int]], column: Int) -> (zeros: Int, ones: Int) {
-    return (0 ... ints.count - 1).reduce((zeros: 0, ones: 0)) { counts, row in
+    return (0 ..< ints.count).reduce((zeros: 0, ones: 0)) { counts, row in
         if ints[row][column] == 1 {
             return (zeros: counts.zeros, ones: counts.ones + 1)
         } else {
@@ -21,7 +21,7 @@ let day03 = problem(day: 3) { text in
         text.split(whereSeparator: \.isNewline)
             .map { line in line.map { Int("\($0)") ?? 0 } }
 
-    let columns = (0 ... binaryNumbers[0].count - 1)
+    let columns = (0 ..< binaryNumbers[0].count)
 
     let counts = columns.map { col in
         columnCounts(ints: binaryNumbers, column: col)

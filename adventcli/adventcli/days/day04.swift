@@ -6,14 +6,16 @@ struct BingoBoard {
     let rows: [Set<Int>]
     let columns: [Set<Int>]
 
-    private init(board: [[Int]]) {
+    init(board: [[Int]]) {
         numbers = Set(board.flatMap { $0 })
-        assert(board.count == 5)
+        assert(board.count == 5, "BINGO boards should always have 5 rows")
 
-        let bingoIdexes = (0 ... 4)
+        let bingoIdexes = (0 ..< 5)
 
         rows = bingoIdexes.map { row in
-            Set(bingoIdexes.map { col in
+            assert(board[row].count == 5, "Rows should always have 5 columns")
+
+            return Set(bingoIdexes.map { col in
                 board[row][col]
             })
         }
@@ -30,24 +32,16 @@ struct BingoBoard {
             rowOrColumn.isSubset(of: nums)
         }
     }
-
-    static let rowParser = Many(Int.parser(), atLeast: 5, atMost: 5, separator: Prefix<Substring.UTF8View> { byte in
-        byte == .init(ascii: " ")
-    })
-    static let parser =
-        Many(
-            rowParser,
-            atLeast: 5,
-            atMost: 5,
-            separator: Whitespace()
-        ).map { board in BingoBoard(board: board) }
-
-    static let manyBoards = Many(BingoBoard.parser, separator: Whitespace())
 }
+
+let rowParser = Many(Int.parser(), atLeast: 5, atMost: 5, separator: Whitespace())
+let parser = Many(rowParser, atLeast: 5, atMost: 5, separator: Whitespace())
+    .map { board in BingoBoard(board: board) }
+let manyBoards = Many(parser, separator: Whitespace())
 
 let problemParser = Many(Int.parser(), separator: ",".utf8)
     .skip(Whitespace())
-    .take(BingoBoard.manyBoards)
+    .take(manyBoards)
 
 let day04 = problem(day: 4) { text in
     let (nums, boards) = problemParser.parse(text.utf8).unsafelyUnwrapped
@@ -152,7 +146,7 @@ func testBoardParsing() {
     77 67 97 51 54
     """.trimmingCharacters(in: .whitespacesAndNewlines)
 
-    print(BingoBoard.rowParser.parse("83 40 67 98 4".utf8) ?? [])
+    print(rowParser.parse("83 40 67 98 4".utf8) ?? [])
 
-    print("Parsed Bingo Board", BingoBoard.manyBoards.parse(board.utf8)?.count ?? "<fail>" as Any)
+    print("Parsed Bingo Board", manyBoards.parse(board.utf8)?.count ?? "<fail>" as Any)
 }
