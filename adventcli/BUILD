@@ -11,7 +11,7 @@ load(
 
 swift_library(
     name = "Sources",
-    srcs = glob(["adventcli/*.swift"]),
+    srcs = glob(["adventcli/**/*.swift"]),
     deps = [
         "@swift_pkgs//swift-log:Logging",
         "@swift_pkgs//swift-collections:Collections",
