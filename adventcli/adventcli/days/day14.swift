@@ -1,6 +1,6 @@
 import Foundation
 
-let day14 = problem(day: 14) { text in
+let day14 = problem(day: 14) { _ in
     part1 {
         0
     }

@@ -125,7 +125,6 @@ let day04 = problem(day: 4) { text in
     }
 }
 
-
 func testBoardParsing() {
     let board = """
     83 40 67 98  4
