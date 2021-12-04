@@ -64,12 +64,9 @@ let day04 = problem(day: 4) { text in
             }
 
             var calledNumbers = state.calledNumbers
-
             calledNumbers.insert(num)
 
-            let winner = boards.first { board in
-                board.hasWon(calledNumbers)
-            }
+            let winner = boards.first { board in board.hasWon(calledNumbers) }
 
             return ReducerState(calledNumbers: calledNumbers, lastNum: num, board: winner)
         }
