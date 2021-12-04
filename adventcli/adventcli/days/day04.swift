@@ -45,38 +45,6 @@ struct BingoBoard {
     static let manyBoards = Many(BingoBoard.parser, separator: Whitespace())
 }
 
-func testBoardParsing() {
-    let board = """
-    83 40 67 98  4
-    50 74 31 30  3
-    75 64 79 61  5
-    12 59 26 25 72
-    36 33 18 54 10
-
-    68 56 28 57 12
-    78 66 20 85 51
-    35 23  7 99 44
-    86 37  8 45 49
-    40 77 32  6 88
-
-    75 15 20 79  8
-    81 69 54 33 28
-     9 53 48 95 27
-    65 84 40 71 36
-    13 31  6 68 29
-
-    94  6 30 16 74
-    91 47 66 31 90
-    14 56 45 55 20
-    58 70 27 46 73
-    77 67 97 51 54
-    """.trimmingCharacters(in: .whitespacesAndNewlines)
-
-    print(BingoBoard.rowParser.parse("83 40 67 98 4".utf8) ?? [])
-
-    print("Parsed Bingo Board", BingoBoard.manyBoards.parse(board.utf8)?.count ?? "<fail>" as Any)
-}
-
 let problemParser = Many(Int.parser(), separator: ",".utf8)
     .skip(Whitespace())
     .take(BingoBoard.manyBoards)
@@ -155,4 +123,37 @@ let day04 = problem(day: 4) { text in
 
         return boardNums.subtracting(calledNumbers).reduce(0, +) * (lastWinner?.0 ?? 0)
     }
+}
+
+
+func testBoardParsing() {
+    let board = """
+    83 40 67 98  4
+    50 74 31 30  3
+    75 64 79 61  5
+    12 59 26 25 72
+    36 33 18 54 10
+
+    68 56 28 57 12
+    78 66 20 85 51
+    35 23  7 99 44
+    86 37  8 45 49
+    40 77 32  6 88
+
+    75 15 20 79  8
+    81 69 54 33 28
+     9 53 48 95 27
+    65 84 40 71 36
+    13 31  6 68 29
+
+    94  6 30 16 74
+    91 47 66 31 90
+    14 56 45 55 20
+    58 70 27 46 73
+    77 67 97 51 54
+    """.trimmingCharacters(in: .whitespacesAndNewlines)
+
+    print(BingoBoard.rowParser.parse("83 40 67 98 4".utf8) ?? [])
+
+    print("Parsed Bingo Board", BingoBoard.manyBoards.parse(board.utf8)?.count ?? "<fail>" as Any)
 }

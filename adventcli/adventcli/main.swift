@@ -2,7 +2,11 @@ import Foundation
 import OrderedCollections
 import Parsing
 
-day01.display()
-day02.display()
-day03.display()
-day04.display()
+let days = [
+    day01, day02, day03, day04, day05,
+]
+
+
+for day in days {
+    day.display()
+}
