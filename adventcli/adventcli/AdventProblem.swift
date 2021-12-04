@@ -13,7 +13,7 @@ extension Problem {
 }
 
 struct Part1 {
-    computation: () -> Int
+    let computation: () -> Int
 }
 
 struct Solution: Problem {
