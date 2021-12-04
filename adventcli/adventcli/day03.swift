@@ -33,10 +33,9 @@ let day03 = problem(day: 3) { text in
             let new_epsilon = (state.epsilon << 1 | (counts.zeros < counts.ones ? 0 : 1))
             return (gamma: new_gamma, epsilon: new_epsilon)
         }
-        
+
         return result.gamma * result.epsilon
     }
-
 
     part2 {
         let oxygenRatingArray = columns.reduce(binaryNumbers) { ints, column in

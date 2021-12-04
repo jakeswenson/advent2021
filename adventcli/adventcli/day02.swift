@@ -11,7 +11,6 @@ enum Movement {
 }
 
 extension String {
-    
     func parseMovements() -> [Movement]? {
         let direction = StartsWith("forward").map { Movement.forward }
             .orElse(StartsWith("up").map { Movement.up })
@@ -29,55 +28,53 @@ extension String {
 struct Part1State {
     let depth: Int
     let distance: Int
-    
+
     init() {
         depth = 0
         distance = 0
     }
-    
+
     private init(depth: Int, distance: Int) {
         self.depth = depth
         self.distance = distance
     }
 
     func dive(_ depth: Int) -> Self {
-        Part1State.init(depth: self.depth + depth, distance: self.distance)
+        Part1State(depth: self.depth + depth, distance: distance)
     }
-    
+
     func forward(_ distance: Int) -> Self {
-        Part1State.init(depth: self.depth, distance: self.distance + distance)
+        Part1State(depth: depth, distance: self.distance + distance)
     }
 }
 
 let day02 = problem(day: 2) { text in
     let movements = text.parseMovements() ?? []
-    
+
     part1 {
-        
-        let result = movements.reduce(Part1State.init()) { state, route in
+        let result = movements.reduce(Part1State()) { state, route in
             switch route {
-                case let .forward(distance): return state.forward(distance)
-                case let .up(depth): return state.dive(-depth)
-                case let .down(depth): return state.dive(depth)
+            case let .forward(distance): return state.forward(distance)
+            case let .up(depth): return state.dive(-depth)
+            case let .down(depth): return state.dive(depth)
             }
         }
 
         return result.depth * result.distance
     }
 
-
     part2 {
         let result2 = movements.reduce((depth: 0, distance: 0, aim: 0)) { state, route in
             var state = state
-            
+
             switch route {
-                case let .forward(distance):
-                    state.distance += distance
-                    state.depth += distance * state.aim
-                case let .up(depth):
-                    state.aim -= depth
-                case let .down(depth):
-                    state.aim += depth
+            case let .forward(distance):
+                state.distance += distance
+                state.depth += distance * state.aim
+            case let .up(depth):
+                state.aim -= depth
+            case let .down(depth):
+                state.aim += depth
             }
 
             return state
