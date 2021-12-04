@@ -1,12 +1,12 @@
 import Foundation
 
-func binArrayToInt(binArray: [Int]) -> Int {
-    binArray.reduce(0) { partialResult, bin in
-        partialResult << 1 | bin
+func binArrayToInt(binArray: [UInt8]) -> Int {
+    binArray.reduce(Int.zero) { partialResult, bin in
+        partialResult << 1 | Int(bin)
     }
 }
 
-func columnCounts(ints: [[Int]], column: Int) -> (zeros: Int, ones: Int) {
+func columnCounts(ints: [[UInt8]], column: Int) -> (zeros: Int, ones: Int) {
     return (0 ..< ints.count).reduce((zeros: 0, ones: 0)) { counts, row in
         if ints[row][column] == 1 {
             return (zeros: counts.zeros, ones: counts.ones + 1)
@@ -17,9 +17,9 @@ func columnCounts(ints: [[Int]], column: Int) -> (zeros: Int, ones: Int) {
 }
 
 let day03 = problem(day: 3) { text in
-    let binaryNumbers: [[Int]] =
+    let binaryNumbers: [[uint8]] =
         text.split(whereSeparator: \.isNewline)
-            .map { line in line.map { Int("\($0)") ?? 0 } }
+            .map { line in line.map { UInt8("\($0)") ?? 0 } }
 
     let columns = (0 ..< binaryNumbers[0].count)
 
