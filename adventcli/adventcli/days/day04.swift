@@ -51,71 +51,80 @@ let day04 = problem(day: 4) { text in
         print("Boards Count", boards.count)
 
         struct ReducerState {
-            let nums: Set<Int>
+            let calledNumbers: Set<Int>
             let lastNum: Int?
             let board: BingoBoard?
 
-            init(nums: Set<Int> = [], lastNum: Int? = nil, board: BingoBoard? = nil) {
-                self.nums = nums
-                self.lastNum = lastNum
-                self.board = board
-            }
+            static let InitialState = ReducerState(calledNumbers: [], lastNum: nil, board: nil)
         }
 
-        let result = nums.reduce(ReducerState()) { state, num in
+        let result = nums.reduce(ReducerState.InitialState) { state, num in
             if state.board != nil {
                 return state
             }
 
-            var nums = state.nums
+            var calledNumbers = state.calledNumbers
 
-            nums.insert(num)
+            calledNumbers.insert(num)
 
             let winner = boards.first { board in
-                board.hasWon(nums)
+                board.hasWon(calledNumbers)
             }
 
-            return ReducerState(nums: nums, lastNum: num, board: winner)
+            return ReducerState(calledNumbers: calledNumbers, lastNum: num, board: winner)
         }
 
         let boardNums = result.board?.numbers ?? Set()
+        let unmarkedNumbersSum = boardNums.subtracting(result.calledNumbers).reduce(0, +)
 
-        return boardNums.subtracting(result.nums).reduce(0, +) * (result.lastNum ?? 0)
+        return unmarkedNumbersSum * (result.lastNum ?? 0)
     }
 
     part2 {
-        typealias ReducerState = (Set<Int>, Array<BingoBoard>.SubSequence, [(Int, BingoBoard)])
+        struct BoardWin {
+            let board: BingoBoard
+            let winningNumber: Int
+        }
 
-        let (calledNumbers, boards, winners): ReducerState = nums.reduce((Set<Int>(), boards[...], [])) { state, num in
-            var nums = state.0
-            var boards = state.1
+        struct ReducerState {
+            let calledNumbers: Set<Int>
+            let remainingBoards: Array<BingoBoard>.SubSequence
+            let winners: [BoardWin]
 
-            if boards.isEmpty {
+            static let InitialState = ReducerState(calledNumbers: [], remainingBoards: [], winners: [])
+        }
+
+        let result = nums.reduce(ReducerState(calledNumbers: [], remainingBoards: boards[...], winners: [])) { state, num in
+            var calledNumbers = state.calledNumbers
+            var remainingBoards = state.remainingBoards
+
+            if remainingBoards.isEmpty {
                 return state
             }
 
-            var winners = state.2
+            var winners = state.winners
 
-            nums.insert(num)
+            calledNumbers.insert(num)
 
-            let p = boards.partition { board in
-                board.hasWon(nums)
+            let p = remainingBoards.partition { board in
+                board.hasWon(calledNumbers)
             }
 
-            let newWinners = boards[p...].map { board in
-                (num, board)
+            let newWinners = remainingBoards[p...].map { board in
+                BoardWin(board: board, winningNumber: num)
             }
 
             winners.append(contentsOf: newWinners)
 
-            return (nums, boards[..<p], winners)
+            return ReducerState(calledNumbers: calledNumbers, remainingBoards: remainingBoards[..<p], winners: winners)
         }
 
-        let lastWinner = winners.last
+        let lastWinner = result.winners.last
 
-        let boardNums = lastWinner?.1.numbers ?? Set()
+        let boardNums = lastWinner?.board.numbers ?? Set()
+        let unmarkedNumbersSum = boardNums.subtracting(result.calledNumbers).reduce(0, +)
 
-        return boardNums.subtracting(calledNumbers).reduce(0, +) * (lastWinner?.0 ?? 0)
+        return unmarkedNumbersSum * (lastWinner?.winningNumber ?? 0)
     }
 }
 
