@@ -88,10 +88,12 @@ let day04 = problem(day: 4) { text in
             let remainingBoards: Array<BingoBoard>.SubSequence
             let winners: [BoardWin]
 
-            static let InitialState = ReducerState(calledNumbers: [], remainingBoards: [], winners: [])
+            static func initial(allBoards: [BingoBoard]) -> ReducerState {
+                ReducerState(calledNumbers: [], remainingBoards: allBoards[...], winners: [])
+            }
         }
 
-        let result = nums.reduce(ReducerState(calledNumbers: [], remainingBoards: boards[...], winners: [])) { state, num in
+        let result = nums.reduce(ReducerState.initial(allBoards: boards)) { state, num in
             var calledNumbers = state.calledNumbers
             var remainingBoards = state.remainingBoards
 
