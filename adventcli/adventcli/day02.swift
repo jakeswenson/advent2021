@@ -2,62 +2,87 @@ import Algorithms
 import Foundation
 // https://developer.apple.com/forums/thread/123614?answerId=652452022#652452022
 import Parsing
+import SwiftUI
 
-func day02() {
-    let file = "/code/advent2021/problems/problem02.txt"
+enum Movement {
+    case forward(_ distance: Int)
+    case up(_ depth: Int)
+    case down(_ depth: Int)
+}
 
-    let path = URL(fileURLWithPath: file)
-    let text = try! String(contentsOf: path)
+extension String {
+    
+    func parseMovements() -> [Movement]? {
+        let direction = StartsWith("forward").map { Movement.forward }
+            .orElse(StartsWith("up").map { Movement.up })
+            .orElse(StartsWith("down").map { Movement.down })
+            .skip(" ")
+            .take(Int.parser())
+            .map { $0($1) }
 
-    enum Route {
-        case forward(num: Int)
-        case up(num: Int)
-        case down(num: Int)
+        let directions = Many(direction, separator: "\n")
+
+        return directions.parse(self)
+    }
+}
+
+struct Part1State {
+    let depth: Int
+    let distance: Int
+    
+    init() {
+        depth = 0
+        distance = 0
+    }
+    
+    private init(depth: Int, distance: Int) {
+        self.depth = depth
+        self.distance = distance
     }
 
-    let direction = StartsWith("forward").map { Route.forward(num:) }
-        .orElse(StartsWith("up").map { Route.up(num:) })
-        .orElse(StartsWith("down").map { Route.down(num:) })
-        .skip(" ")
-        .take(Int.parser())
-        .map { $0($1) }
+    func dive(_ depth: Int) -> Self {
+        Part1State.init(depth: self.depth + depth, distance: self.distance)
+    }
+    
+    func forward(_ distance: Int) -> Self {
+        Part1State.init(depth: self.depth, distance: self.distance + distance)
+    }
+}
 
-    let directions = Many(direction, separator: "\n")
-
-    let results = directions.parse(text) ?? []
-
-    let result = results.reduce((depth: 0, distance: 0)) {
-        state, route in
-        var state = state
-        switch route {
-        case let .forward(num):
-            state.distance += num
-        case let .up(num):
-            state.depth -= num
-        case let .down(num):
-            state.depth += num
+let day02 = problem(day: 2) { text in
+    let movements = text.parseMovements() ?? []
+    
+    part1 {
+        
+        let result = movements.reduce(Part1State.init()) { state, route in
+            switch route {
+                case let .forward(distance): return state.forward(distance)
+                case let .up(depth): return state.dive(-depth)
+                case let .down(depth): return state.dive(depth)
+            }
         }
 
-        return state
+        return result.depth * result.distance
     }
 
-    print(result.depth * result.distance)
 
-    let result2 = results.reduce((depth: 0, distance: 0, aim: 0)) {
-        state, route in
-        var state = state
-        switch route {
-        case let .forward(num):
-            state.distance += num
-            state.depth += num * state.aim
-        case let .up(num):
-            state.aim -= num
-        case let .down(num):
-            state.aim += num
+    part2 {
+        let result2 = movements.reduce((depth: 0, distance: 0, aim: 0)) { state, route in
+            var state = state
+            
+            switch route {
+                case let .forward(distance):
+                    state.distance += distance
+                    state.depth += distance * state.aim
+                case let .up(depth):
+                    state.aim -= depth
+                case let .down(depth):
+                    state.aim += depth
+            }
+
+            return state
         }
 
-        return state
+        return result2.depth * result2.distance
     }
-
-    print(result2.depth * result2.distance)
 }
