@@ -49,7 +49,7 @@ struct Part1State {
 }
 
 let day02 = problem(day: 2) { text in
-    let movements = text.parseMovements() ?? []
+    let movements = text.parseMovements()!
 
     part1 {
         let result = movements.reduce(Part1State()) { state, route in

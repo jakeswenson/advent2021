@@ -44,7 +44,7 @@ let problemParser = Many(Int.parser(), separator: ",".utf8)
     .take(manyBoards)
 
 let day04 = problem(day: 4) { text in
-    let (nums, boards) = problemParser.parse(text.utf8).unsafelyUnwrapped
+    let (nums, boards) = problemParser.parse(text.utf8)!
 
     part1 {
         print("Called Number Count", nums.count)
@@ -71,10 +71,10 @@ let day04 = problem(day: 4) { text in
             return ReducerState(calledNumbers: calledNumbers, lastNum: num, board: winner)
         }
 
-        let boardNums = result.board?.numbers ?? Set()
+        let boardNums = result.board!.numbers
         let unmarkedNumbersSum = boardNums.subtracting(result.calledNumbers).reduce(0, +)
 
-        return unmarkedNumbersSum * (result.lastNum ?? 0)
+        return unmarkedNumbersSum * result.lastNum!
     }
 
     part2 {
@@ -118,12 +118,12 @@ let day04 = problem(day: 4) { text in
             return ReducerState(calledNumbers: calledNumbers, remainingBoards: remainingBoards[..<p], winners: winners)
         }
 
-        let lastWinner = result.winners.last
+        let lastWinner = result.winners.last!
 
-        let boardNums = lastWinner?.board.numbers ?? Set()
+        let boardNums = lastWinner.board.numbers
         let unmarkedNumbersSum = boardNums.subtracting(result.calledNumbers).reduce(0, +)
 
-        return unmarkedNumbersSum * (lastWinner?.winningNumber ?? 0)
+        return unmarkedNumbersSum * lastWinner.winningNumber
     }
 }
 
@@ -154,7 +154,7 @@ func testBoardParsing() {
     77 67 97 51 54
     """.trimmingCharacters(in: .whitespacesAndNewlines)
 
-    print(rowParser.parse("83 40 67 98 4".utf8) ?? [])
+    print(rowParser.parse("83 40 67 98 4".utf8)!)
 
     print("Parsed Bingo Board", manyBoards.parse(board.utf8)?.count ?? "<fail>" as Any)
 }

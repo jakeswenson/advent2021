@@ -4,7 +4,7 @@ import Foundation
 let day01 = problem(day: 1) { text in
 
     let lines: [String.SubSequence] = text.split(whereSeparator: \.isNewline)
-    let numbers = lines.map { line in Int(line) ?? 0 }
+    let numbers = lines.map { line in Int(line)! }
 
     part1 {
         zip(numbers, numbers[1...]).filter { fst, snd in snd > fst }.count

@@ -38,7 +38,7 @@ let lineParser = parsePoint.skip(Whitespace()).skip("->".utf8).skip(Whitespace()
 let lines = Many(lineParser, separator: Whitespace())
 
 let day05 = problem(day: 5) { text in
-    let allLines = lines.parse(text.utf8) ?? []
+    let allLines = lines.parse(text.utf8)!
 
     part1 {
         print("Parsed Lines", allLines.count)
