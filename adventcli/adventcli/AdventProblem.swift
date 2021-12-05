@@ -33,10 +33,7 @@ struct Day {
 }
 
 func problem(day: Int, @ProblemPartBuilder parts: (String) -> Solution) -> Day {
-    let file = String(format: "/code/advent2021/problems/problem%02d.txt", day)
-    let path = URL(fileURLWithPath: file)
-    let text = try! String(contentsOf: path)
-
+    let text = try! loadProblem(day: day)
     let solution: Solution = parts(text)
     let day = Day(day: day, solution: solution)
 

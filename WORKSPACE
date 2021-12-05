@@ -73,7 +73,12 @@ spm_repositories(
             from_version = "0.3.1",
             products = ["Parsing"]
 
-        )
+        ),
+        spm_pkg(
+            "https://github.com/apple/swift-argument-parser.git",
+            from_version = "1.0.0",
+            products = ["ArgumentParser"]
+        ),
     ],
 )
 
