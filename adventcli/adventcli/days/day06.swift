@@ -7,44 +7,34 @@ import SwiftUI
 let parseFish = Int.parser()
 let manyFish = Many(parseFish, separator: ",")
 
+func runSim(_ fish: [Int], generation: Int) -> Int {
+    let count = 9
+    var generationalCounts: [Int] = Array(repeating: 0, count: count)
+
+    for f in fish {
+        generationalCounts[f] += 1
+    }
+
+    for _ in 0 ..< generation {
+        let newFishCount = generationalCounts[0]
+        for age in 1 ..< count {
+            generationalCounts[age - 1] = generationalCounts[age]
+        }
+        generationalCounts[6] += newFishCount
+        generationalCounts[8] = newFishCount
+    }
+
+    return generationalCounts.reduce(0, +)
+}
+
 let day06 = problem(day: 6) { text in
     let allFish = manyFish.parse(text)!
 
     part1 {
-        var currentFish: [Int] = Array(repeating: 0, count: 9)
-
-        for f in allFish {
-            currentFish[f] += 1
-        }
-
-        for day in 0 ..< 80 {
-            let newFishCount = currentFish[0]
-            for age in 1 ..< currentFish.count {
-                currentFish[age - 1] = currentFish[age]
-            }
-            currentFish[6] += newFishCount
-            currentFish[currentFish.count - 1] = newFishCount
-        }
-
-        return currentFish.reduce(0, +)
+        runSim(allFish, generation: 80)
     }
 
     part2 {
-        var currentFish: [Int] = Array(repeating: 0, count: 9)
-
-        for f in allFish {
-            currentFish[f] += 1
-        }
-
-        for day in 0 ..< 256 {
-            let newFishCount = currentFish[0]
-            for age in 1 ..< currentFish.count {
-                currentFish[age - 1] = currentFish[age]
-            }
-            currentFish[6] += newFishCount
-            currentFish[currentFish.count - 1] = newFishCount
-        }
-
-        return currentFish.reduce(0, +)
+        runSim(allFish, generation: 256)
     }
 }
