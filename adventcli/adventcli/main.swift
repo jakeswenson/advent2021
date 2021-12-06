@@ -2,7 +2,7 @@ import ArgumentParser
 import Foundation
 
 let days = [
-    day01, day02, day03, day04, day05, day06
+    day01, day02, day03, day04, day05, day06,
 ]
 
 struct Advent: ParsableCommand {
