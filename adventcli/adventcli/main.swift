@@ -16,7 +16,7 @@ struct Advent: ParsableCommand {
         // Pass an array to `subcommands` to set up a nested tree of subcommands.
         // With language support for type-level introspection, this could be
         // provided by automatically finding nested `ParsableCommand` types.
-        subcommands: [Run.self, Fetch.self],
+        subcommands: [Run.self, Solve.self, Fetch.self],
 
         // A default subcommand, when provided, is automatically selected if a
         // subcommand is not given on the command line.
@@ -25,16 +25,35 @@ struct Advent: ParsableCommand {
 }
 
 struct Run: ParsableCommand {
-    
     @Argument(help: "The days to run")
     var daysToRun: [Int] = []
-    
+
     func run() throws {
         for day in days {
             if daysToRun.isEmpty || daysToRun.contains(day.day) {
-                day.display()
+                do {
+                    try day.solve()
+                } catch {
+                    print("Failed to run day \(day.day)")
+                }
             }
         }
+
+        print("Done!")
+    }
+}
+
+struct Solve: ParsableCommand {
+    @Argument(help: "The days to run")
+    var dayToRun: Int
+
+    @Argument(help: "File name of the input to run against")
+    var inputName: String?
+
+    func run() throws {
+        try days.filter {
+            $0.day == dayToRun
+        }.first?.solve(input: inputName.map { try loadProblemInput(path: inputPath($0)) })
 
         print("Done!")
     }
@@ -47,22 +66,22 @@ func done() {
 struct Fetch: ParsableCommand {
     @Argument(help: "The day to fetch")
     var day: Int
-    
+
     func run() throws {
         print("Fetching problem input for day \(day)...")
-        let task = Task.init {
+        Task.init {
             do {
                 let data = try await fetchProblem(day: day)
                 print("Fetched problem data, writing to file...")
                 try writeProblemData(day: day, data)
                 print("Done")
-                done()
-            }
-            catch {
+            } catch {
                 print("Failed to fetch")
             }
+
+            done()
         }
-        
+
         dispatchMain()
     }
 }

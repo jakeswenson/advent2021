@@ -15,21 +15,29 @@ func fetchProblem(day: Int) async throws -> Data {
     request.httpBody = postData as Data
 
     let session = URLSession.shared
-    let (data, response) = try await session.data(for: request)
+    let (data, _) = try await session.data(for: request)
 
-    print(data)
-    
     return data
 }
 
-func loadProblem(day: Int) throws -> String  {
-    let file = String(format: "/code/advent2021/problems/problem%02d.txt", day)
-    let path = URL(fileURLWithPath: file)
+func inputPath(_ inputName: String) -> String {
+    "/code/advent2021/problems/\(inputName)"
+}
+
+func problemInputName(_ day: Int) -> String {
+    String(format: "problem%02d.txt", day)
+}
+
+func loadProblem(day: Int) throws -> String {
+    try loadProblemInput(path: inputPath(problemInputName(day)))
+}
+
+func loadProblemInput(path inputPath: String) throws -> String {
+    let path = URL(fileURLWithPath: inputPath)
     return try String(contentsOf: path)
 }
 
 func writeProblemData(day: Int, _ data: Data) throws {
-    let file = String(format: "/code/advent2021/problems/problem%02d.txt", day)
-    let path = URL(fileURLWithPath: file)
+    let path = URL(fileURLWithPath: inputPath(problemInputName(day)))
     try data.write(to: path)
 }

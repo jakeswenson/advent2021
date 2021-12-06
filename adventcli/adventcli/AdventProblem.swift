@@ -22,22 +22,21 @@ struct Solution {
 
 struct Day {
     let day: Int
-    let solution: Solution
+    let parts: (String) -> Solution
 
-    func display() {
+    func solve(input: String? = nil) throws {
         print(String(format: "======== DAY %02d ========", day))
+        let text = try input ?? loadProblem(day: day)
+        let solution: Solution = parts(text)
+
         print("Part 1:", solution.part1.computation())
         print("Part 2:", solution.part2?.computation() ?? "<not implemented>" as Any)
         print()
     }
 }
 
-func problem(day: Int, @ProblemPartBuilder parts: (String) -> Solution) -> Day {
-    let text = try! loadProblem(day: day)
-    let solution: Solution = parts(text)
-    let day = Day(day: day, solution: solution)
-
-    return day
+func problem(day: Int, @ProblemPartBuilder parts: @escaping (String) -> Solution) -> Day {
+    Day(day: day, parts: parts)
 }
 
 func part1(_ logic: @escaping () -> Int) -> Part1 {
