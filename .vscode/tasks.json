@@ -1,0 +1,64 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "shell",
+			"command": "bazel build //adventcli:cli",
+			"problemMatcher": [],
+			"label": "bazel build",
+			"detail": "build with bazel",
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			}
+		},
+		{
+			"type": "shell",
+			"command": "bazel run //adventcli:cli",
+			"problemMatcher": [],
+			"label": "Advent",
+			"detail": "Run all advent days",
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+			"options": {
+				"env": {
+					"ADVENT_PROBLEMS_DIR": "/Users/jakes/code/personal/advent2021/problems"
+				}
+			}
+		},
+		{
+			"type": "shell",
+			"command": "bazel run //adventcli:cli -- today --sample",
+			"problemMatcher": [],
+			"label": "Solve Today w/Sample",
+			"detail": "Solve Today with sample input",
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+			"options": {
+				"env": {
+					"ADVENT_PROBLEMS_DIR": "/Users/jakes/code/personal/advent2021/problems"
+				}
+			}
+		},
+		{
+			"type": "shell",
+			"command": "bazel run //adventcli:cli -- today",
+			"problemMatcher": [],
+			"label": "Solve Today's Problem",
+			"detail": "Solve Today's Problem",
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+			"options": {
+				"env": {
+					"ADVENT_PROBLEMS_DIR": "/Users/jakes/code/personal/advent2021/problems"
+				}
+			}
+		}
+	]
+}

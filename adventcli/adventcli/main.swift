@@ -2,7 +2,7 @@ import ArgumentParser
 import Foundation
 
 let days = [
-    day01, day02, day03, day04, day05, day06,
+    day01, day02, day03, day04, day05, day06, day07
 ]
 
 struct Advent: ParsableCommand {
@@ -16,7 +16,7 @@ struct Advent: ParsableCommand {
         // Pass an array to `subcommands` to set up a nested tree of subcommands.
         // With language support for type-level introspection, this could be
         // provided by automatically finding nested `ParsableCommand` types.
-        subcommands: [Run.self, Solve.self, Fetch.self],
+        subcommands: [Run.self, Problem.self, Today.self, Fetch.self],
 
         // A default subcommand, when provided, is automatically selected if a
         // subcommand is not given on the command line.
@@ -43,8 +43,8 @@ struct Run: ParsableCommand {
     }
 }
 
-struct Solve: ParsableCommand {
-    @Argument(help: "The days to run")
+struct Problem: ParsableCommand {
+    @Argument(help: "The day to run")
     var dayToRun: Int
 
     @Argument(help: "File name of the input to run against")
@@ -54,6 +54,21 @@ struct Solve: ParsableCommand {
         try days.filter {
             $0.day == dayToRun
         }.first?.solve(input: inputName.map { try loadProblemInput(path: inputPath($0)) })
+
+        print("Done!")
+    }
+}
+
+struct Today: ParsableCommand {
+    @Flag(help: "Use sample input")
+    var sample: Bool = false
+
+    func run() throws {
+        let latestDay = days.max { d1, d2 in d1.day < d2.day }!
+
+        let sampleFile = String(format: "%02d.sample", latestDay.day)
+
+        try latestDay.solve(input: (sample ? try loadProblemInput(path: inputPath(sampleFile)): nil))
 
         print("Done!")
     }
@@ -75,11 +90,17 @@ struct Fetch: ParsableCommand {
                 print("Fetched problem data, writing to file...")
                 try writeProblemData(day: day, data)
                 print("Done")
-            } catch {
+                done()
+            } 
+            catch AdventError.noApiToken {
+                print("No ADEVENT_API token found, set it with:")
+                print("  export ADVENT_API='TOKEN'")
+            }
+            catch {
                 print("Failed to fetch")
             }
 
-            done()
+            abort()
         }
 
         dispatchMain()

@@ -2,7 +2,6 @@ import Algorithms
 import Collections
 import Foundation
 import Parsing
-import SwiftUI
 
 let parseFish = Int.parser()
 let manyFish = Many(parseFish, separator: ",")

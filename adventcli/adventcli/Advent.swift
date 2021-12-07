@@ -1,9 +1,16 @@
 import Foundation
 
-func fetchProblem(day: Int) async throws -> Data {
-    let value = ProcessInfo.processInfo.environment["ADVENT_API"]!
+enum AdventError: Error {
+    case noApiToken
+}
 
-    let headers = ["Cookie": "session=\(value)"]
+
+func fetchProblem(day: Int) async throws -> Data {
+    guard let token = ProcessInfo.processInfo.environment["ADVENT_API"] else {
+        throw AdventError.noApiToken
+    }
+
+    let headers = ["Cookie": "session=\(token)"]
 
     let postData = NSData(data: "".data(using: String.Encoding.utf8)!)
 
@@ -21,7 +28,8 @@ func fetchProblem(day: Int) async throws -> Data {
 }
 
 func inputPath(_ inputName: String) -> String {
-    "/code/advent2021/problems/\(inputName)"
+    let path = ProcessInfo.processInfo.environment["ADVENT_PROBLEMS_DIR"] ?? "/code/advent2021/problems"
+    return "\(path)/\(inputName)"
 }
 
 func problemInputName(_ day: Int) -> String {
