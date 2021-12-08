@@ -89,7 +89,7 @@ let day08 = problem(day: 8) { text in
             // zero, one, three, four, seven, eight, nine
             // - need 2, 5, 6
 
-            let twoFiveSix = remaining.filter { zero != $0 && three != $0 }
+            let twoFiveSix = remaining.filter { !zeroOrThree.contains($0) }
 
             let (two, fiveSix) = matchDigit(twoFiveSix) { option in
                 upperL.subtracting(option).count == 1
