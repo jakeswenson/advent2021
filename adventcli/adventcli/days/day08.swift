@@ -103,21 +103,10 @@ let day08 = problem(day: 8) { text in
                 eight.subtracting(option).count == 2
             }
 
-            func digit(_ output: Set<Character>) -> Int {
-                if zero == output { return 0 }
-                if one == output { return 1 }
-                if two == output { return 2 }
-                if three == output { return 3 }
-                if four == output { return 4 }
-                if five == output { return 5 }
-                if six == output { return 6 }
-                if seven == output { return 7 }
-                if eight == output { return 8 }
-                return 9
-            }
+            let digits = [zero, one, two, three, four, five, six, seven, eight, nine]
 
             let number = note.outputs.map { Set($0) }.reduce(0) { state, output in 
-                (10*state) + digit(output)
+                (10*state) + digits.firstIndex(of: output)!
             }
 
             return number
