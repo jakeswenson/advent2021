@@ -2,7 +2,7 @@ import ArgumentParser
 import Foundation
 
 let days = [
-    day01, day02, day03, day04, day05, day06, day07
+    day01, day02, day03, day04, day05, day06, day07, day08
 ]
 
 struct Advent: ParsableCommand {
@@ -79,10 +79,12 @@ func done() {
 }
 
 struct Fetch: ParsableCommand {
+
     @Argument(help: "The day to fetch")
-    var day: Int
+    var day: Int?
 
     func run() throws {
+        let day = day ?? days.max { d1, d2 in d1.day < d2.day }!.day
         print("Fetching problem input for day \(day)...")
         Task.init {
             do {

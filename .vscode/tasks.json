@@ -24,7 +24,7 @@
 			},
 			"options": {
 				"env": {
-					"ADVENT_PROBLEMS_DIR": "/Users/jakes/code/personal/advent2021/problems"
+					"ADVENT_PROBLEMS_DIR": "${workspaceFolder}/problems"
 				}
 			}
 		},
@@ -40,7 +40,7 @@
 			},
 			"options": {
 				"env": {
-					"ADVENT_PROBLEMS_DIR": "/Users/jakes/code/personal/advent2021/problems"
+					"ADVENT_PROBLEMS_DIR": "${workspaceFolder}/problems"
 				}
 			}
 		},
@@ -56,7 +56,23 @@
 			},
 			"options": {
 				"env": {
-					"ADVENT_PROBLEMS_DIR": "/Users/jakes/code/personal/advent2021/problems"
+					"ADVENT_PROBLEMS_DIR": "${workspaceFolder}/problems"
+				}
+			}
+		},
+		{
+			"type": "shell",
+			"command": "bazel run //adventcli:cli -- fetch",
+			"problemMatcher": [],
+			"label": "Fetch Today's Problem",
+			"detail": "Fetch Today's Problem",
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+			"options": {
+				"env": {
+					"ADVENT_PROBLEMS_DIR": "${workspaceFolder}/problems"
 				}
 			}
 		}
