@@ -5,7 +5,7 @@
 			"type": "shell",
 			"command": "bazel build //adventcli:cli",
 			"problemMatcher": [],
-			"label": "bazel build",
+			"label": "Build",
 			"detail": "build with bazel",
 			"group": {
 				"kind": "build",
