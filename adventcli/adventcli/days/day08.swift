@@ -19,16 +19,16 @@ let numberSizes = [
 let day08 = problem(day: 8) { text in
     let notes: [(signals: [String.SubSequence], outputs: [String.SubSequence])] = text.split(whereSeparator: \.isNewline)
         .map { line in
-            let parts = line.split(separator: "|", maxSplits: 2, omittingEmptySubsequences: false).map { $0.trimmingCharacters(in: .whitespaces) }
+            let parts = line.split(separator: "|").map { $0.trimmingCharacters(in: .whitespaces) }
             let (signalsRaw, outputsRaw) = (parts[0], parts[1])
 
-            let signals = signalsRaw.split(separator: " ", omittingEmptySubsequences: false)
-            let outputs = outputsRaw.split(separator: " ", omittingEmptySubsequences: false)
+            let signals = signalsRaw.split(separator: " ")
+            let outputs = outputsRaw.split(separator: " ")
 
             return (signals: signals, outputs: outputs)
         }
 
-    part1 {
+    part1(example: 26, answer: 288) {
         let numberLengths: [Int] = ([1, 4, 7, 8].map { numberSizes[$0]! })
 
         let result =
@@ -39,7 +39,7 @@ let day08 = problem(day: 8) { text in
         return result
     }
 
-    part2 {
+    part2(example: 61229, answer: 940724) {
         let numberLengths: [Int] = ([1, 4, 7, 8].map { numberSizes[$0]! })
 
         func matchDigit(_ chars: [Set<Character>], by: (Set<Character>) -> Bool) -> (Set<Character>, Array<Set<Character>>.SubSequence) {
