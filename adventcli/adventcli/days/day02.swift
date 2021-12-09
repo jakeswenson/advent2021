@@ -51,7 +51,7 @@ struct Part1State {
 let day02 = problem(day: 2) { text in
     let movements = text.parseMovements()!
 
-    part1 {
+    part1(example: 150, answer: 1694130) {
         let result = movements.reduce(Part1State()) { state, route in
             switch route {
             case let .forward(distance): return state.forward(distance)
@@ -63,7 +63,7 @@ let day02 = problem(day: 2) { text in
         return result.depth * result.distance
     }
 
-    part2 {
+    part2(example: 900, answer: 1698850445) {
         let result2 = movements.reduce((depth: 0, distance: 0, aim: 0)) { state, route in
             var state = state
 

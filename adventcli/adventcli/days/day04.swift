@@ -46,7 +46,7 @@ let problemParser = Many(Int.parser(), separator: ",".utf8)
 let day04 = problem(day: 4) { text in
     let (nums, boards) = problemParser.parse(text.utf8)!
 
-    part1 {
+    part1(example: 4512, answer: 60368) {
         print("Called Number Count", nums.count)
         print("Boards Count", boards.count)
 
@@ -77,7 +77,7 @@ let day04 = problem(day: 4) { text in
         return unmarkedNumbersSum * result.lastNum!
     }
 
-    part2 {
+    part2(example: 1924, answer: 17435) {
         struct BoardWin {
             let board: BingoBoard
             let winningNumber: Int

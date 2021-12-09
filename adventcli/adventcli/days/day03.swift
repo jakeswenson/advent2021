@@ -27,7 +27,7 @@ let day03 = problem(day: 3) { text in
         columnCounts(ints: binaryNumbers, column: col)
     }
 
-    part1 {
+    part1(example: 198, answer: 4118544) {
         let result = counts.reduce((gamma: 0, epsilon: 0)) { state, counts in
             let new_gamma = (state.gamma << 1 | (counts.zeros > counts.ones ? 0 : 1))
             let new_epsilon = (state.epsilon << 1 | (counts.zeros < counts.ones ? 0 : 1))
@@ -37,7 +37,7 @@ let day03 = problem(day: 3) { text in
         return result.gamma * result.epsilon
     }
 
-    part2 {
+    part2(example: 230, answer: 3832770) {
         let oxygenRatingArray = columns.reduce(binaryNumbers) { ints, column in
             if ints.count == 1 {
                 return ints

@@ -40,7 +40,7 @@ let lines = Many(lineParser, separator: Whitespace())
 let day05 = problem(day: 5) { text in
     let allLines = lines.parse(text.utf8)!
 
-    part1 {
+    part1(example: 5, answer: 5306) {
         print("Parsed Lines", allLines.count)
 
         let part1Lines = allLines.filter { line in line.isHorizontal || line.isVertical }
@@ -58,7 +58,7 @@ let day05 = problem(day: 5) { text in
         return intersections
     }
 
-    part2 {
+    part2(example: 12, answer: 17787) {
         var counts: [Point: UInt8] = [:]
 
         for p in allLines.flatMap({ $0.pointsOnLine() }) {

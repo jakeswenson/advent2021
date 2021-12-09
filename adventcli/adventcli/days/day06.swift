@@ -29,11 +29,11 @@ func runSim(_ fish: [Int], generation: Int) -> Int {
 let day06 = problem(day: 6) { text in
     let allFish = manyFish.parse(text)!
 
-    part1 {
+    part1(example: 5934, answer: 362639) {
         runSim(allFish, generation: 80)
     }
 
-    part2 {
+    part2(example: 26984457539, answer: 1639854996917) {
         runSim(allFish, generation: 256)
     }
 }
