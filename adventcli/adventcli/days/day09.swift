@@ -31,13 +31,7 @@ func neighborsIdx(_ nums: [[Int]], loc: Coord) -> [Coord] {
     return neighbors
 }
 
-func neighbors(_ nums: [[Int]], loc: Coord) -> [Int] {
-    return neighborsIdx(nums, loc: loc).map { idx in
-        nums[idx]
-    }
-}
-
-func neighborsIdxAndVal(_ nums: [[Int]], loc: Coord) -> [(value: Int, coord: Coord)] {
+func neighbors(_ nums: [[Int]], loc: Coord) -> [(value: Int, coord: Coord)] {
     return neighborsIdx(nums, loc: loc).map { idx in
         (value: nums[idx], coord: idx)
     }
@@ -61,7 +55,7 @@ let day09 = problem(day: 9) { text in
 
     let lowPoints = numbers.points.filter { loc in
             let value = numbers[loc]
-            let neighbors = neighbors(numbers, loc: loc)
+            let neighbors = neighbors(numbers, loc: loc).map(\.value)
 
             return neighbors.allSatisfy { n in n > value }
         }
@@ -82,7 +76,7 @@ let day09 = problem(day: 9) { text in
     part2(example: 1134, answer: 900864) {
         let largestBasins = lowPoints.map { lowCoord -> Int in 
                 var searchQueue: Deque = [lowCoord]
-                var size = 0
+                var basinSize = 0
 
                 var visited: [Coord: Bool] = [:]
 
@@ -92,10 +86,10 @@ let day09 = problem(day: 9) { text in
                     }
                     visited[loc] = true
                     
-                    size += 1
+                    basinSize += 1
 
                     let val = numbers[loc]
-                    let nearBy: [Coord] = neighborsIdxAndVal(numbers, loc: loc).filter { neighbor in
+                    let nearBy: [Coord] = neighbors(numbers, loc: loc).filter { neighbor in
                         return neighbor.value > val && neighbor.value != 9 && !visited[neighbor.coord, default: false]
                     }.map(\.coord)
 
@@ -104,8 +98,8 @@ let day09 = problem(day: 9) { text in
                     }
                 }
 
-                return size
-            }.max(count: 3, sortedBy: <)
+                return basinSize
+            }.max(count: 3)
 
         return largestBasins.reduce(1, *)
     }
