@@ -49,9 +49,8 @@ extension Array where Element == Array<Int> {
     }
 }
 
-let day09 = problem(day: 9) { text in
-    let numbers = text.split(whereSeparator: \.isNewline)
-        .map { $0[...].map { $0.wholeNumberValue! } }
+let day09 = problem(day: 9) { input in
+    let numbers = input.lines.map { $0[...].map { $0.wholeNumberValue! } }
 
     let lowPoints = numbers.points.filter { loc in
             let value = numbers[loc]

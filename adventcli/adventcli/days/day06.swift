@@ -26,8 +26,8 @@ func runSim(_ fish: [Int], generation: Int) -> Int {
     return generationalCounts.reduce(0, +)
 }
 
-let day06 = problem(day: 6) { text in
-    let allFish = manyFish.parse(text)!
+let day06 = problem(day: 6) { input in
+    let allFish = manyFish.parse(input.text)!
 
     part1(example: 5934, answer: 362639) {
         runSim(allFish, generation: 80)

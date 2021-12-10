@@ -1,9 +1,9 @@
 import Algorithms
 import Foundation
 
-let day01 = problem(day: 1) { text in
+let day01 = problem(day: 1) { input in
 
-    let lines: [String.SubSequence] = text.split(whereSeparator: \.isNewline)
+    let lines = input.lines
     let numbers = lines.map { line in Int(line)! }
 
     part1(example: 7, answer: 1228) {

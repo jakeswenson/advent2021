@@ -16,10 +16,8 @@ func columnCounts(ints: [[UInt8]], column: Int) -> (zeros: Int, ones: Int) {
     }
 }
 
-let day03 = problem(day: 3) { text in
-    let binaryNumbers: [[uint8]] =
-        text.split(whereSeparator: \.isNewline)
-            .map { line in line.map { $0 == "1" ? 1 : 0 } }
+let day03 = problem(day: 3) { input in
+    let binaryNumbers: [[uint8]] = input.lines.map { line in line.map { $0 == "1" ? 1 : 0 } }
 
     let columns = (0 ..< binaryNumbers[0].count)
 

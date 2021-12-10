@@ -43,8 +43,8 @@ let problemParser = Many(Int.parser(), separator: ",".utf8)
     .skip(Whitespace())
     .take(manyBoards)
 
-let day04 = problem(day: 4) { text in
-    let (nums, boards) = problemParser.parse(text.utf8)!
+let day04 = problem(day: 4) { input in
+    let (nums, boards) = problemParser.parse(input.utf8)!
 
     part1(example: 4512, answer: 60368) {
         print("Called Number Count", nums.count)

@@ -16,9 +16,8 @@ let numberSizes = [
     9: 6
 ]
 
-let day08 = problem(day: 8) { text in
-    let notes: [(signals: [String.SubSequence], outputs: [String.SubSequence])] = text.split(whereSeparator: \.isNewline)
-        .map { line in
+let day08 = problem(day: 8) { input in
+    let notes: [(signals: [String.SubSequence], outputs: [String.SubSequence])] = input.lines.map { line in
             let parts = line.split(separator: "|").map { $0.trimmingCharacters(in: .whitespaces) }
             let (signalsRaw, outputsRaw) = (parts[0], parts[1])
 

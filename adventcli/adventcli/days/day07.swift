@@ -6,8 +6,8 @@ import Parsing
 let crabPosition = Int.parser()
 let crabPositions = Many(crabPosition, separator: ",")
 
-let day07 = problem(day: 7) { text in
-    let positions = crabPositions.parse(text)!
+let day07 = problem(day: 7) { input in
+    let positions = crabPositions.parse(input.text)!
     let max = positions.max()!
 
     part1(example: 37, answer: 355521) {

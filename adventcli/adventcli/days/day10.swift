@@ -58,9 +58,8 @@ struct Chunks {
     static let initial = Chunks()
 }
 
-
-let day10 = problem(day: 10) { text in
-    let lines = text.split(whereSeparator: \.isNewline)
+let day10 = problem(day: 10) { input in
+    let lines = input.lines
 
     part1(example: 26397, answer: 366027) {
         let result = try! lines.reduce(0) { score, line in

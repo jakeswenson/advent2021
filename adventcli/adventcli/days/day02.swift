@@ -10,7 +10,7 @@ enum Movement {
     case down(_ depth: Int)
 }
 
-extension String {
+extension Input {
     func parseMovements() -> [Movement]? {
         let direction = StartsWith("forward").map { Movement.forward }
             .orElse(StartsWith("up").map { Movement.up })
@@ -21,7 +21,7 @@ extension String {
 
         let directions = Many(direction, separator: "\n")
 
-        return directions.parse(self)
+        return directions.parse(self.text)
     }
 }
 
@@ -48,8 +48,8 @@ struct Part1State {
     }
 }
 
-let day02 = problem(day: 2) { text in
-    let movements = text.parseMovements()!
+let day02 = problem(day: 2) { input in
+    let movements = input.parseMovements()!
 
     part1(example: 150, answer: 1694130) {
         let result = movements.reduce(Part1State()) { state, route in

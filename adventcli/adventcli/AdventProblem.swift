@@ -1,6 +1,18 @@
 import Foundation
 import OrderedCollections
 
+struct Input {
+    let text: String
+}
+
+extension Input {
+    var lines: [String.SubSequence] {
+        self.text.split(whereSeparator: \.isNewline)
+    }
+
+    var utf8: String.UTF8View { text.utf8 }
+}
+
 struct Part1 {
     let example: Int?
     let answer: Int?
@@ -26,12 +38,13 @@ struct Solution {
 
 struct Day {
     let day: Int
-    let parts: (String) -> Solution
+    let parts: (Input) -> Solution
 
     func solve(input: String? = nil) throws {
         print(String(format: "======== DAY %02d ========", day))
         let text = try input ?? loadProblem(day: day)
-        let solution: Solution = parts(text)
+
+        let solution: Solution = parts(Input(text: text))
 
         let part1 = solution.part1.computation()
         let status1 = part1 == solution.part1.answer ? "🟢" : part1 == solution.part1.example ? "✅" : "❓"
@@ -44,7 +57,7 @@ struct Day {
     }
 }
 
-func problem(day: Int, @ProblemPartBuilder parts: @escaping (String) -> Solution) -> Day {
+func problem(day: Int, @ProblemPartBuilder parts: @escaping (Input) -> Solution) -> Day {
     Day(day: day, parts: parts)
 }
 
