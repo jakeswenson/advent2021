@@ -38,8 +38,13 @@ func neighbors(_ nums: [[Int]], loc: Coord) -> [(value: Int, coord: Coord)] {
 }
 
 extension Array where Element == Array<Int> {
-    subscript(_ coord: Coord) -> Int {
-        self[coord.row][coord.col]
+    subscript(_ coord: Coord) -> Int { 
+        get {
+            self[coord.row][coord.col]
+        }
+        set {
+            self[coord.row][coord.col] = newValue
+        }
     }
 
     var points: [Coord] {
