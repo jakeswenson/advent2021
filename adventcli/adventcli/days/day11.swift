@@ -93,7 +93,7 @@ let day11 = problem(day: 11) { input in
     var iteration = 0
     var energylevels = energylevels
 
-    while !energylevels.allSatisfy { row in row.allSatisfy { $0 == 0 } } {
+    while !energylevels.allSatisfy({ row in row.allSatisfy { $0 == 0 } }) {
       let (nextEnergyLevels:levels, _) = octopusFlash(energylevels)
       energylevels = levels
       iteration += 1
