@@ -11,8 +11,12 @@ struct Day13Pair: Hashable, Equatable, CustomDebugStringConvertible {
   let x: Int, y: Int
 }
 
-let points = Int.parser().skip(",".utf8).take(Int.parser())
+let points =
+  Int.parser()
+  .skip(",".utf8)
+  .take(Int.parser())
   .map { Day13Pair(x: $0, y: $1) }
+
 let manyPoints = Many(points, separator: Whitespace())
 
 enum FoldingAlong {
@@ -36,11 +40,7 @@ func displayMap(_ result: Set<Day13Pair>) {
 
   let map = (0...maxY).map { y in
     (0...maxX).map { x -> String in
-      if result.contains(Day13Pair(x: x, y: y)) {
-        return "#"
-      } else {
-        return "."
-      }
+      result.contains(Day13Pair(x: x, y: y)) ? "#" : "."
     }.joined()
   }.joined(separator: "\n")
 
@@ -52,22 +52,12 @@ func foldPoints(points: Set<Day13Pair>, along: FoldingAlong) -> Set<Day13Pair> {
   case .y(let y):
     return Set(
       points.map { (point: Day13Pair) in
-        if point.y <= y {
-          return point
-        } else {
-          return Day13Pair(x: point.x, y: (2 * y) - point.y)
-        }
-
+        point.y <= y ? point : Day13Pair(x: point.x, y: (2 * y) - point.y)
       })
   case .x(let x):
     return Set(
       points.map { (point: Day13Pair) in
-        if point.x <= x {
-          return point
-        } else {
-          return Day13Pair(x: (2 * x) - point.x, y: point.y)
-        }
-
+        point.x <= x ? point : Day13Pair(x: (2 * x) - point.x, y: point.y)
       })
   }
 }
