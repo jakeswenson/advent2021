@@ -67,16 +67,16 @@ let day13 = problem(day: 13) { input in
 
   part1(example: 17, answer: 618) {
 
-    let result = folds[..<1].reduce(Set(points)) { foldPoints(points: $0, along: $1) }
+    let result = folds[..<1].reduce(Set(points), foldPoints(points:along:))
 
     return result.count
   }
 
   part2(example: 8, answer: 8) {
 
-    let result = folds.reduce(Set(points)) { foldPoints(points: $0, along: $1) }
+    let result = folds.reduce(Set(points), foldPoints(points:along:))
 
-    print("The Code is:")
+    print("The code is:")
     displayMap(result)
 
     return "ALREKFKU".count
