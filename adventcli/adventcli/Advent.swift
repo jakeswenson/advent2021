@@ -11,14 +11,11 @@ func fetchProblem(day: Int) async throws -> Data {
 
   let headers = ["Cookie": "session=\(token)"]
 
-  let postData = NSData(data: "".data(using: String.Encoding.utf8)!)
-
   let url = URL(string: "https://adventofcode.com/2021/day/\(day)/input")!
 
   var request = URLRequest(url: url, cachePolicy: .useProtocolCachePolicy, timeoutInterval: 10.0)
   request.httpMethod = "GET"
   request.allHTTPHeaderFields = headers
-  request.httpBody = postData as Data
 
   let session = URLSession.shared
   let (data, _) = try await session.data(for: request)
