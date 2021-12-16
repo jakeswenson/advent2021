@@ -3,51 +3,105 @@ import Collections
 import CoreFoundation
 import Parsing
 
+struct BitStream: Sequence {
+  private let inner: ArraySlice<UInt8>
+
+  init(_ inner: ArraySlice<UInt8>) {
+    self.inner = inner
+  }
+
+  var isEmpty: Bool { inner.isEmpty }
+
+  subscript(_ range: Range<Int>) -> (slice: BitStream, rest: BitStream) {
+    let start = range.startIndex + inner.startIndex
+    let end = range.endIndex + inner.startIndex
+    let slice = BitStream(inner[start..<end])
+    let rest = BitStream(inner[end...])
+    return (slice: slice, rest: rest)
+  }
+
+  subscript(_ range: PartialRangeUpTo<Int>) -> (slice: BitStream, rest: BitStream) {
+    let end = range.upperBound + inner.startIndex
+    let slice = BitStream(inner[..<end])
+    let rest = BitStream(inner[end...])
+
+    return (slice: slice, rest: rest)
+  }
+
+  subscript(_ range: PartialRangeFrom<Int>) -> BitStream {
+    let start = range.lowerBound + inner.startIndex
+
+    return BitStream(inner[start...])
+  }
+
+  subscript(_ range: UnboundedRange) -> BitStream { self }
+
+  subscript(_ idx: Int) -> UInt8 {
+    return inner[inner.startIndex + idx]
+  }
+
+  func readUInt8() -> UInt8 {
+    return self.reduce(UInt8.zero) { n, bit in n << 1 | bit }
+  }
+
+  func readUInt8(bits: Int) -> (UInt8, rest: BitStream) {
+    assert(bits <= 8)
+    let (bits, rest) = self[..<bits]
+    return (bits.reduce(UInt8.zero) { n, bit in n << 1 | bit }, rest: rest)
+  }
+
+  func readInt(bits: Int) -> (Int, rest: BitStream) {
+    let (bits, rest) = self[..<bits]
+    return (bits.reduce(Int.zero) { n, bit in n << 1 | Int(bit) }, rest: rest)
+  }
+
+  func readVarInt() -> (Int, BitStream) {
+    var stream = self
+    var int = Int.zero
+
+    while let (chunk, rest) = .some(stream[..<5]) {
+      stream = rest
+
+      // print("Chunk", chunk, "start", chunk.startIndex, "end", chunk.endIndex)
+      assert(!chunk.isEmpty)
+      let intBits = chunk[1...]
+      int = intBits.reduce(int) { n, bit in n << 1 | Int(bit) }
+
+      if chunk[0] == 0 {
+        break
+      }
+    }
+
+    return (int, stream)
+  }
+
+  func makeIterator() -> ArraySlice<UInt8>.Iterator {
+    return inner.makeIterator()
+  }
+}
+
 struct Header {
   let version: UInt8, type: UInt8
 
-  static func parse(_ stream: BitStream) -> Header {
-    let versionBits = stream[..<(stream.startIndex + 3)]
-    let version = versionBits.reduce(UInt8.zero) { n, bit in n << 1 | bit }
+  static func parse(_ stream: BitStream) -> (Header, BitStream) {
+    let (version, rest) = stream.readUInt8(bits: 3)
+    let (type, body) = rest.readUInt8(bits: 3)
     // print("Version", versionBits, version)
-
-    let typeBits = stream[(stream.startIndex + 3)..<(stream.startIndex + 6)]
-    let type = typeBits.reduce(UInt8.zero) { n, bit in n << 1 | bit }
     // print("Type:", typeBits, type)
 
-    return Header(version: version, type: type)
+    return (Header(version: version, type: type), body)
   }
 }
 
-typealias BitStream = ArraySlice<UInt8>
+func parseMapSubPackets(_ rest: BitStream, builder: ([BitsPacket]) -> BitsPacket) -> (
+  BitsPacket, BitStream
+) {
+  let (type, packets) = rest.readUInt8(bits: 1)
 
-func parseVarInt(_ stream: BitStream) -> (Int, BitStream) {
-  var stream = stream
-  var int = Int.zero
+  if type == 0 {
+    let (subPacketsSize, rest) = packets.readInt(bits: 15)
 
-  while let chunk = Optional.some(stream.prefix(5)) {
-    // print("Chunk", chunk, "start", chunk.startIndex, "end", chunk.endIndex)
-    assert(!chunk.isEmpty)
-    int = chunk[(stream.startIndex + 1)...].reduce(int) { n, bit in n << 1 | Int(bit) }
-
-    stream = stream[chunk.endIndex...]
-
-    if chunk[chunk.startIndex] == 0 {
-      break
-    }
-  }
-
-  return (int, stream)
-}
-
-func parseSubPackets(_ rest: BitStream) -> ([BitsPacket], BitStream) {
-  // print("Operator", rest)
-  if rest.first! == 0 {
-    let subPacketsSize = rest[(rest.startIndex + 1)...(rest.startIndex + 15)].reduce(Int.zero) {
-      n, bit in n << 1 | Int(bit)
-    }
-
-    var subPackets = rest[(rest.startIndex + 16)..<(rest.startIndex + 16 + subPacketsSize)]
+    var (subPackets, nextPacket) = rest[..<subPacketsSize]
     var packets: [BitsPacket] = []
 
     while !subPackets.isEmpty {
@@ -56,37 +110,43 @@ func parseSubPackets(_ rest: BitStream) -> ([BitsPacket], BitStream) {
       subPackets = rest
     }
 
-    let sub = rest[(rest.startIndex + 16 + subPacketsSize)...]
-
-    return (packets, sub)
+    return (builder(packets), nextPacket)
   } else {
-    let numSubPackets = rest[(rest.startIndex + 1)...(rest.startIndex + 11)].reduce(Int.zero) {
-      n, bit in n << 1 | Int(bit)
-    }
+    let (numSubPackets, subPackets) = packets.readInt(bits: 11)
 
-    let subPackets = rest[(rest.startIndex + 12)...]
-    var packets: [BitsPacket] = []
-
-    let rest = (0..<numSubPackets).reduce(subPackets) { subPackets, _ in
+    let (packets, rest) = (0..<numSubPackets).reduce(([BitsPacket](), subPackets)) { state, _ in
+      var (packets, subPackets) = state
       let (packet, rest) = BitsPacket.parse(bitStream: subPackets)!
       packets.append(packet)
-      return rest
+      return (packets, rest)
     }
 
-    return (packets, rest)
+    return (builder(packets), rest)
   }
 }
 
-enum BitsPacket: Equatable {
+enum BitsPacket: Equatable, CustomDebugStringConvertible {
+  var debugDescription: String {
+    switch self {
+    case .literal(let v, let value): return ".literal(v:\(v), \(value))"
+    case .sum(let v, let packets): return ".sum(v:\(v), [\(packets)])"
+    case .product(let v, let packets): return ".product(v:\(v), \(packets))"
+    case .minimum(let v, let packets): return ".minimum(v:\(v), \(packets))"
+    case .maximum(let v, let packets): return ".maximum(v:\(v), \(packets))"
+    case .greaterThan(let v, let packets): return ".greaterThan(v:\(v), \(packets))"
+    case .lessThan(let v, let packets): return ".lessThan(v:\(v), \(packets))"
+    case .equalTo(let v, let packets): return ".equalTo(v:\(v), \(packets))"
+    }
+  }
 
-  case literal(version: UInt8, _ value: Int)
-  case sum(version: UInt8, _ packets: [BitsPacket])
-  case product(version: UInt8, _ packets: [BitsPacket])
-  case minimum(version: UInt8, _ packets: [BitsPacket])
-  case maximum(version: UInt8, _ packets: [BitsPacket])
-  case greaterThan(version: UInt8, _ packets: [BitsPacket])
-  case lessThan(version: UInt8, _ packets: [BitsPacket])
-  case equalTo(version: UInt8, _ packets: [BitsPacket])
+  case literal(_ version: UInt8, _ value: Int)
+  case sum(_ version: UInt8, packets: [BitsPacket])
+  case product(_ version: UInt8, packets: [BitsPacket])
+  case minimum(_ version: UInt8, packets: [BitsPacket])
+  case maximum(_ version: UInt8, packets: [BitsPacket])
+  case greaterThan(_ version: UInt8, packets: [BitsPacket])
+  case lessThan(_ version: UInt8, packets: [BitsPacket])
+  case equalTo(_ version: UInt8, packets: [BitsPacket])
 
   var type: UInt8 {
     switch self {
@@ -104,38 +164,20 @@ enum BitsPacket: Equatable {
   static func parse(bitStream: BitStream) -> (BitsPacket, BitStream)? {
     // print("Stream", bitStream)
 
-    let header = Header.parse(bitStream)
-
-    let rest = bitStream[(bitStream.startIndex + 6)...]
+    let (header, rest) = Header.parse(bitStream)
 
     switch header.type {
-    case 0:
-      let (packets, rest) = parseSubPackets(rest)
-      return (.sum(version: header.version, packets), rest)
-    case 1:
-      let (packets, rest) = parseSubPackets(rest)
-      return (.product(version: header.version, packets), rest)
-    case 2:
-      let (packets, rest) = parseSubPackets(rest)
-      return (.minimum(version: header.version, packets), rest)
-    case 3:
-      let (packets, rest) = parseSubPackets(rest)
-      return (.maximum(version: header.version, packets), rest)
     case 4:
-      let (value, rest) = parseVarInt(rest)
-      return (.literal(version: header.version, value), rest)
-    case 5:
-      let (packets, rest) = parseSubPackets(rest)
-      return (.greaterThan(version: header.version, packets), rest)
-    case 6:
-      let (packets, rest) = parseSubPackets(rest)
-      return (.lessThan(version: header.version, packets), rest)
-    case 7:
-      let (packets, rest) = parseSubPackets(rest)
-      return (.equalTo(version: header.version, packets), rest)
-    default:
-      return nil
-
+      let (value, rest) = rest.readVarInt()
+      return (.literal(header.version, value), rest)
+    case 0: return parseMapSubPackets(rest) { .sum(header.version, packets: $0) }
+    case 1: return parseMapSubPackets(rest) { .product(header.version, packets: $0) }
+    case 2: return parseMapSubPackets(rest) { .minimum(header.version, packets: $0) }
+    case 3: return parseMapSubPackets(rest) { .maximum(header.version, packets: $0) }
+    case 5: return parseMapSubPackets(rest) { .greaterThan(header.version, packets: $0) }
+    case 6: return parseMapSubPackets(rest) { .lessThan(header.version, packets: $0) }
+    case 7: return parseMapSubPackets(rest) { .equalTo(header.version, packets: $0) }
+    default: return nil
     }
   }
 }
@@ -169,7 +211,7 @@ func eval(_ packet: BitsPacket) -> Int {
   }
 }
 
-func bitStream(from: String.SubSequence) -> [UInt8] {
+func bitStream(from: String.SubSequence) -> BitStream {
   let chars = from.map { $0 }
   let packet: [String] = chars.map {
     let binary = String($0.hexDigitValue!, radix: 2)
@@ -182,7 +224,7 @@ func bitStream(from: String.SubSequence) -> [UInt8] {
 
   let bitStream: [UInt8] = packet.flatMap { $0.map { UInt8($0.wholeNumberValue!) } }
 
-  return bitStream
+  return BitStream(bitStream[...])
 }
 
 let day16 = problem(day: 16) { input in
@@ -195,13 +237,13 @@ let day16 = problem(day: 16) { input in
     testMoreExamplesThree()
     testMoreExamplesFour()
 
-    let (packet, _) = BitsPacket.parse(bitStream: bitStream[...])!
+    let (packet, _) = BitsPacket.parse(bitStream: bitStream)!
 
     return sumVersions(packet: packet)
   }
 
   part2(example: 46, answer: 96_257_984_154) {
-    let (packet, _) = BitsPacket.parse(bitStream: bitStream[...])!
+    let (packet, _) = BitsPacket.parse(bitStream: bitStream)!
 
     return eval(packet)
   }
@@ -212,7 +254,7 @@ func testLiteral() {
 
   let (packet, _) = BitsPacket.parse(bitStream: stream[...])!
 
-  assert(packet == .literal(version: 6, 2021))
+  assert(packet == .literal(6, 2021))
 }
 
 func testOperatorTypeID_0() {
@@ -223,10 +265,10 @@ func testOperatorTypeID_0() {
   assert(
     packet
       == .lessThan(
-        version: 1,
-        [
-          .literal(version: 6, 10),
-          .literal(version: 2, 20),
+        1,
+        packets: [
+          .literal(6, 10),
+          .literal(2, 20),
         ]), "expected \(packet)")
 }
 
@@ -238,11 +280,11 @@ func testOperatorTypeID_1() {
   assert(
     packet
       == .maximum(
-        version: 7,
-        [
-          .literal(version: 2, 1),
-          .literal(version: 4, 2),
-          .literal(version: 1, 3),
+        7,
+        packets: [
+          .literal(2, 1),
+          .literal(4, 2),
+          .literal(1, 3),
         ]), "expected \(packet)")
 }
 
@@ -254,15 +296,15 @@ func testMoreExamplesOne() {
   assert(
     packet
       == .minimum(
-        version: 4,
-        [
+        4,
+        packets: [
           .minimum(
-            version: 1,
-            [
+            1,
+            packets: [
               .minimum(
-                version: 5,
-                [
-                  .literal(version: 6, 15)
+                5,
+                packets: [
+                  .literal(6, 15)
                 ])
             ])
         ]), "expected \(packet)")
@@ -279,19 +321,19 @@ func testMoreExamplesTwo() {
   assert(
     packet
       == .sum(
-        version: 3,
-        [
+        3,
+        packets: [
           .sum(
-            version: 0,
-            [
-              .literal(version: 0, 10),
-              .literal(version: 5, 11),
+            0,
+            packets: [
+              .literal(0, 10),
+              .literal(5, 11),
             ]),
           .sum(
-            version: 1,
-            [
-              .literal(version: 0, 12),
-              .literal(version: 3, 13),
+            1,
+            packets: [
+              .literal(0, 12),
+              .literal(3, 13),
             ]),
         ]), "expected \(packet)")
 
@@ -307,19 +349,19 @@ func testMoreExamplesThree() {
   assert(
     packet
       == .sum(
-        version: 6,
-        [
+        6,
+        packets: [
           .sum(
-            version: 0,
-            [
-              .literal(version: 0, 10),
-              .literal(version: 6, 11),
+            0,
+            packets: [
+              .literal(0, 10),
+              .literal(6, 11),
             ]),
           .sum(
-            version: 4,
-            [
-              .literal(version: 7, 12),
-              .literal(version: 0, 13),
+            4,
+            packets: [
+              .literal(7, 12),
+              .literal(0, 13),
             ]),
 
         ]), "expected \(packet)")
@@ -336,19 +378,19 @@ func testMoreExamplesFour() {
   assert(
     packet
       == .sum(
-        version: 5,
-        [
+        5,
+        packets: [
           .sum(
-            version: 1,
-            [
+            1,
+            packets: [
               .sum(
-                version: 3,
-                [
-                  .literal(version: 7, 6),
-                  .literal(version: 6, 6),
-                  .literal(version: 5, 12),
-                  .literal(version: 2, 15),
-                  .literal(version: 2, 15),
+                3,
+                packets: [
+                  .literal(7, 6),
+                  .literal(6, 6),
+                  .literal(5, 12),
+                  .literal(2, 15),
+                  .literal(2, 15),
                 ])
             ])
         ]), "expected \(packet)")
